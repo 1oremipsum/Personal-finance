@@ -11,7 +11,8 @@ def create_tables():
     SQLModel.metadata.create_all(engine)
 
 def main():
-    create_tables()
+    print("This is a simple banking system")
+    # create_tables()
 
 if __name__ == "__main__":
     main()
