@@ -71,15 +71,15 @@ class AccountView:
 
     def create_account(self, account: Account) -> bool:
         return self.db_manager.create_object(account)
-    
+
     def get_all_accounts(self):
         return self.db_manager.select_all_objects(Account)
     
     def get_accounts_by(self, condition):
-        return self.db_manager.select_one_object_or_more_by(Account, condition, True)
+        return self.db_manager.select_one_object_or_more_by(Account, condition)
 
     def get_account_by(self, condition):
-        return self.db_manager.select_one_object_or_more_by(Account, condition)
+        return self.db_manager.select_one_object_or_more_by(Account, condition, True)
     
     def deactivate_account_by_id(self, id):
         account = self.get_account_by(Account.id==id)
@@ -87,26 +87,20 @@ class AccountView:
             raise ValueError("The account cannot be deactivated as it still has a balance")
         account[0].status = Status.INACTIVE
         return self.db_manager.update_object(account[0])
-
-
-db_manager = DBManager(engine)
-account_view = AccountView(db_manager)
-
-#Creating account
-# account = Account(balance=0.0, bank=Banks.PAYPAL)
-# success_result = account_view.create_account(account)
-
-# Return all results
-# success_result = account_view.get_all_accounts()
-
-# Return results for a condition
-# success_result = account_view.get_accounts_by(Account.bank == "PAYPAL")
-
-# Selecting and Updating by id
-# success_result = account_view.deactivate_account_by_id(3)
-
-# if success_result:
-#     print(success_result)
-#     print("Successful action.")
-# else:
-#     print("Unsuccessful action.")
+    
+    def transfer_balance(self, sender_id, recipient_id, value):
+        sender = self.get_account_by(Account.id == sender_id)
+        if sender.status == Status.INACTIVE:
+            raise ValueError("The sender account is inactive")
+        
+        recipient = self.get_account_by(Account.id == recipient_id)
+        if recipient.status == Status.INACTIVE:
+            raise ValueError("The recipient account is inactive")
+        elif sender.id == recipient.id:
+            raise ValueError("The sender and recipient are the same account")
+        elif sender.balance < value:
+            raise ValueError("The sender does not have enough balance to perform the transfer")
+            
+        sender.balance -= value
+        recipient.balance += value
+        return self.db_manager.update_object(sender) and self.db_manager.update_object(recipient)
