@@ -12,7 +12,7 @@ def create_tables():
 
 def main():
     print("This is a simple banking system")
-    # create_tables()
+    create_tables()
 
 if __name__ == "__main__":
     main()

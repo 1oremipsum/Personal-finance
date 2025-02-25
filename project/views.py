@@ -1,16 +1,15 @@
-from models import Account, Banks, Status
+from models import Account, Movement, Status
 from settings import engine
 from sqlmodel import Session, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import SQLModel
 from typing import Type, Union
 
-
 class DBManager:
     def __init__(self, engine):
         self.engine = engine
 
-    def create_object(self, obj: Union[Account, Type[SQLModel]]) -> bool:
+    def create_object(self, obj: Union[Account, Movement, Type[SQLModel]]) -> bool:
         try:
             with Session(self.engine) as session:
                 session.add(obj)
@@ -20,7 +19,7 @@ class DBManager:
             print(f"Error creating object: {e}")
             return False
         
-    def update_object(self, obj: Union[Account, Type[SQLModel]]) -> bool:
+    def update_object(self, obj: Union[Account, Movement, Type[SQLModel]]) -> bool:
         try:
             with Session(self.engine) as session:
                 existing_obj = session.get(type(obj), obj.id)
@@ -37,7 +36,7 @@ class DBManager:
             print(f"Error updating object: {e}")
             return False
 
-    def select_all_objects(self, obj: Union[Account, type[SQLModel]]):
+    def select_all_objects(self, obj: Union[Account, Movement, type[SQLModel]]):
         try:
             with Session(self.engine) as session:
                 statement = select(obj)
@@ -48,8 +47,8 @@ class DBManager:
             return None
 
     def select_one_object_or_more_by(self, 
-        obj: Union[Account, type[SQLModel]], 
-        condition: Union[Account, type[SQLModel]],
+        obj: Union[Account, Movement, type[SQLModel]], 
+        condition: Union[Account, Movement, type[SQLModel]],
         fetch_one=False):
 
         try:
